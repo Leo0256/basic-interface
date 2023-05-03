@@ -24,7 +24,7 @@ function App() {
 
 	function saveTaxa(e) {
 		e.preventDefault();
-		axios.post('http://localhost:3000/temp/saveTaxa', { taxa, parc })
+		axios.post('https://api-qingresso-server.onrender.com', { taxa, parc })
 		.then(resp => {
 			setResp(resp.data)
 		})
