@@ -13,11 +13,18 @@ function App() {
 		tax_pix: 0,
 		tax_pix_perc: false
 	});
+	const [ parc, setParc ] = useState({
+		par_mpgto: 2,
+		par_max: 0,
+		par_acrescimo: 0,
+		par_acrescimo_perc: 0,
+		par_classe: null
+	})
 	const [ resp, setResp ] = useState();
 
 	function saveTaxa(e) {
 		e.preventDefault();
-		axios.post('http://localhost:3000/temp/saveTaxa', { taxa })
+		axios.post('http://localhost:3000/temp/saveTaxa', { taxa, parc })
 		.then(resp => {
 			setResp(resp.data)
 		})
@@ -34,10 +41,17 @@ function App() {
 				Classe: 
 				<input
 					type="number"
-					onChange={a => setTaxa(e => {
-						e.tax_classe = !!a.target.value ? a.target.value : 0
-						return e
-					})}
+					onChange={a => {
+						setTaxa(e => {
+							e.tax_classe = !!a.target.value ? a.target.value : 0
+							return e
+						})
+
+						setParc(e => {
+							e.par_classe = !!a.target.value ? a.target.value : 0
+							return e
+						})
+				}}
 				/>
 			</label>
 			<label>
@@ -128,6 +142,42 @@ function App() {
 					})}
 				/>
 			</label>
+			<div>
+				<p>Parcelas de Crédito</p>
+
+				<label>
+					Máximo de parcelas: 
+					<input
+						type="number"
+						onChange={a => setParc(e => {
+							e.par_max = !!a.target.value ? a.target.value : 0
+							return e
+						})}
+					/>
+				</label>
+				<label>
+					Valor das parcelas: 
+					<input
+						type="number"
+						step="0.001"
+						onChange={a => setParc(e => {
+							e.par_acrescimo = !!a.target.value ? a.target.value : 0
+							return e
+						})}
+					/>
+				</label>
+				<label>
+					Parcelas em porcentagem: 
+					<input
+						type="checkbox"
+						defaultChecked={parc.par_acrescimo_perc}
+						onChange={() => setTaxa(e => {
+							e.par_acrescimo_perc = !e.par_acrescimo_perc
+							return e
+						})}
+					/>
+				</label>
+			</div>
 			<button type="submit">salvar taxa</button>
 		</form>
 	</div>
