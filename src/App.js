@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function App() {
@@ -22,40 +22,135 @@ function App() {
 	})
 	const [ resp, setResp ] = useState();
 
+	const url = 'https://api-qingresso-server.onrender.com/temp'//'http://localhost:3000/temp'
+
 	function saveTaxa(e) {
 		e.preventDefault();
-		axios.post('https://api-qingresso-server.onrender.com/temp/saveTaxa', { taxa, parc })
+		axios.post(`${url}/saveTaxa`, { taxa, parc })
 		.then(resp => {
 			setResp(resp.data)
 		})
 	}
 
-	return <div>
+	const [ pdvs, setPdvs ] = useState([]);
+	const [ eventos, setEventos ] = useState([]);
+	const [ classes, setClasses ] = useState([]);
+	const [ pdvSelect, setPdv ] = useState(null);
+	const [ eventoSelect, setEvento ] = useState(null);
 
+	useEffect(() => {
+		axios.get(`${url}/getPdvs`)
+		.then(resp => {
+			setPdvs(resp.data)
+		})
+	}, []);
+
+	function getEventos(pdv) {
+		axios.post(`${url}/getEventos`, { pdv })
+		.then(resp => {
+			setEventos(resp.data)
+		})
+	}
+
+	function getClasses(evento) {
+		axios.post(`${url}/getClasses`, {
+			evento,
+			pdv: pdvSelect?.pdv_id ?? null
+		})
+		.then(resp => {
+			setClasses(resp.data)
+		})
+	}
+
+	return <>
 		<p>
 			Taxa: {JSON.stringify(resp)}
 		</p>
-		
-		<form onSubmit={saveTaxa}>
-			<label>
-				Classe: 
-				<input
-					type="number"
-					onChange={a => {
-						setTaxa(e => {
-							e.tax_classe = !!a.target.value ? a.target.value : 0
-							return e
-						})
 
-						setParc(e => {
-							e.par_classe = !!a.target.value ? a.target.value : 0
-							return e
-						})
-				}}
+		<form onSubmit={saveTaxa}>
+			<div>
+				<label>
+					<span>PDV: </span>
+					<input list='pdvs' onChange={a => {
+						var text = (a.target.value).trim();
+						var pdv = pdvs.find(a => a.pdv_nome === text)
+
+						if(!!pdv && pdvSelect !== text) {
+							setPdv(pdv)
+							getEventos(pdv?.pdv_id)
+						}
+						else {
+							setPdv(null)
+							setEventos([])
+							setEvento(null)
+						}
+					}}/>
+					<datalist id='pdvs'>
+						{ pdvs.length > 0 && pdvs.map((pdv, index) => (
+							<option key={index} value={pdv?.pdv_nome}/>
+						)) }
+					</datalist>
+				</label>
+
+				<label>
+					<span>Evento: </span>
+					<input list='eventos'
+						disabled={!eventos.length}
+						onChange={a => {
+						var text = (a.target.value).trim();
+						var evento = eventos.find(a => a.eve_nome === text)
+						if(!!evento && eventoSelect !== text) {
+							setEvento(evento)
+							getClasses(evento?.eve_cod)
+						}
+						else {
+							setEvento(null)
+							setClasses([])
+						}
+					}}/>
+					<datalist id='eventos'>
+						{ eventos.length > 0 && eventos.map((evento, index) => (
+							<option key={index} value={evento?.eve_nome}/>
+						)) }
+					</datalist>
+				</label>
+			</div>
+
+		
+			<label>
+				<span>Classe: </span>
+				<input list='classes'
+					disabled={!classes.length}
+					onChange={a => {
+						var text = (a.target.value).trim();
+						var classe = classes.find(a => a.cla_nome === text)
+						let tax_classe = 0
+
+						if(!!classe) {
+							tax_classe = classe?.cla_cod
+						}
+						
+						if(taxa.tax_classe !== tax_classe && parc.par_classe !== tax_classe) {
+							setTaxa(e => {
+								e.tax_classe = tax_classe
+								return e
+							})
+
+							setParc(e => {
+								e.par_classe = tax_classe
+								return e
+							})
+						}
+					}}
 				/>
+				<datalist id='classes'>
+					{ classes.length > 0 && classes.map((classe, index) => (
+						<option key={index} value={classe?.cla_nome}/>
+					)) }
+				</datalist>
 			</label>
 			<label>
-				Dinheiro: 
+				<span>Dinheiro: </span>
 				<input
 					type="number"
 					step="0.001"
@@ -66,7 +161,7 @@ function App() {
 				/>
 			</label>
 			<label>
-				Dinheiro em porcentagem: 
+				<span className='auto'>Dinheiro em porcentagem: </span>
 				<input
 					type="checkbox"
 					defaultChecked={taxa.tax_dinheiro_perc}
@@ -77,7 +172,7 @@ function App() {
 				/>
 			</label>
 			<label>
-				Crédito: 
+				<span>Crédito: </span>
 				<input
 					type="number"
 					step="0.001"
@@ -88,7 +183,7 @@ function App() {
 				/>
 			</label>
 			<label>
-				Crédito em porcentagem: 
+				<span className='auto'>Crédito em porcentagem: </span>
 				<input
 					type="checkbox"
 					defaultChecked={taxa.tax_credito_perc}
@@ -99,7 +194,7 @@ function App() {
 				/>
 			</label>
 			<label>
-				Débito: 
+				<span>Débito: </span>
 				<input
 					type="number"
 					step="0.001"
@@ -110,7 +205,7 @@ function App() {
 				/>
 			</label>
 			<label>
-				Débito em porcentagem: 
+				<span className='auto'>Débito em porcentagem: </span>
 				<input
 					type="checkbox"
 					defaultChecked={taxa.tax_debito_perc}
@@ -121,7 +216,7 @@ function App() {
 				/>
 			</label>
 			<label>
-				Pix: 
+				<span>Pix: </span>
 				<input
 					type="number"
 					step="0.001"
@@ -132,7 +227,7 @@ function App() {
 				/>
 			</label>
 			<label>
-				Pix em porcentagem: 
+				<span className='auto'>Pix em porcentagem: </span>
 				<input
 					type="checkbox"
 					defaultChecked={taxa.tax_pix_perc}
@@ -146,7 +241,7 @@ function App() {
 				<p>Parcelas de Crédito</p>
 
 				<label>
-					Máximo de parcelas: 
+					<span>Máximo de parcelas: </span>
 					<input
 						type="number"
 						onChange={a => setParc(e => {
@@ -156,7 +251,7 @@ function App() {
 					/>
 				</label>
 				<label>
-					Valor das parcelas: 
+					<span>Valor das parcelas: </span>
 					<input
 						type="number"
 						step="0.001"
@@ -167,7 +262,7 @@ function App() {
 					/>
 				</label>
 				<label>
-					Parcelas em porcentagem: 
+					<span className='auto'>Parcelas em porcentagem: </span>
 					<input
 						type="checkbox"
 						defaultChecked={parc.par_acrescimo_perc}
@@ -178,9 +273,9 @@ function App() {
 					/>
 				</label>
 			</div>
-			<button type="submit">salvar taxa</button>
+			<button type="submit" disabled={!eventoSelect}>salvar taxa</button>
 		</form>
-	</div>
+	</>
 }
 
 export default App;

@@ -7,20 +7,59 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+#root {
+  width: 100%;
+}
+
 form {
   display: inline-flex;
   flex-direction: column;
 }
 
-form div {
+div {
   display: inline-flex;
   flex-direction: column;
+}
+
+div#body {
+  width: 50%;
+}
+
+div:not(#root) {
   border: 1px solid black;
   padding: 10px;
   margin-block: 10px;
 }
 
+form {
+  width: -moz-max-content;
+  width: max-content;
+  border: 1px solid black;
+  padding: 10px;
+  margin-block: 10px;
+}
+
+form label {
+  display: table;
+  padding-bottom: 3pt;
+  border-bottom: 1px solid black;
+}
+
+form label span {
+  display: table-cell;
+  width: 80px;
+}
+
+form label span.auto {
+  width: auto;
+}
+
+form label input:not(input[type="checkbox"]) {
+  display: table-cell;
+  width: -webkit-fill-available;
+}
+
 p {
-  width: 50%;
+  margin: 0;
   overflow-wrap: break-word;
 }
