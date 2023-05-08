@@ -25,10 +25,24 @@ div#body {
   width: 50%;
 }
 
-div:not(#root) {
+div.input {
+  flex-direction: row;
+}
+
+div:not(#root, .input) {
   border: 1px solid black;
   padding: 10px;
   margin-block: 10px;
+}
+
+label.percent {
+  display: flex;
+  width: min-content;
+  align-items: baseline;
+}
+
+div.input label:not(.percent) {
+  width: 100%;
 }
 
 form {
@@ -45,7 +59,7 @@ form label {
   border-bottom: 1px solid black;
 }
 
-form label span {
+form label:not(.percent) span {
   display: table-cell;
   width: 80px;
 }
