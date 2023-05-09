@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import Select from 'react-select';
 import axios from 'axios';
+import Taxa from './Taxa';
 
 export default function CadastroTaxa() {
     const [ taxa, setTaxa ] = useState({
@@ -22,23 +24,15 @@ export default function CadastroTaxa() {
 	})
 	const [ resp, setResp ] = useState();
 
-	//const url = 'https://api-qingresso-server.onrender.com/temp'
-	const url = 'http://localhost:3000/temp'
+	const url = 'https://api-qingresso-server.onrender.com/temp'
+	//const url = 'http://localhost:3000/temp'
 
-	function saveTaxa(e) {
-		e.preventDefault();
-		
-		axios.post(`${url}/saveTaxa`, { taxa, parc })
-		.then(resp => {
-			setResp(resp.data)
-		})
-	}
-
-	const [ pdvs, setPdvs ] = useState([]);
-	const [ eventos, setEventos ] = useState([]);
-	const [ classes, setClasses ] = useState([]);
-	const [ pdvSelect, setPdv ] = useState(null);
-	const [ eventoSelect, setEvento ] = useState(null);
+    const [ pdvsList, setPdvsList ] = useState([]);
+	const [ eventosList, setEventosList ] = useState([]);
+	const [ classesList, setClassesList ] = useState([]);
+	const [ pdv, setPdv ] = useState(null);
+	const [ evento, setEvento ] = useState(null);
+	const [ classe, setClasse ] = useState(null);
 	const [ maxParc, setMaxParc ] = useState(1);
 
 	const [ dinheiro, setDinheiro ] = useState('0,00')
@@ -47,8 +41,19 @@ export default function CadastroTaxa() {
 	const [ pix, setPix ] = useState('0,00')
 	const [ parcelaCredito, setParcelaCredito ] = useState('0,00')
 
+    function saveTaxa(e) {
+		e.preventDefault();
 
-
+		axios.post(`${url}/saveTaxa`, { taxa, parc })
+		.then(resp => {
+			setResp({
+                ...resp.data,
+                pdv: pdv.value.pdv_nome,
+                evento: evento.value.eve_nome,
+                classe: classesList.find(a => a.value.cla_cod === taxa.tax_classe)?.value
+            })
+		})
+	}
 
 	function numberMask(value, percent) {
 		const percentMask = (text) => {
@@ -68,131 +73,141 @@ export default function CadastroTaxa() {
 		);
 	}
 
-	useEffect(() => {
-		axios.get(`${url}/getPdvs`)
-		.then(resp => {
-			setPdvs(resp.data)
-		})
-	}, []);
-
 	function getEventos(pdv) {
 		axios.post(`${url}/getEventos`, { pdv })
 		.then(resp => {
-			setEventos(resp.data)
+			setEventosList(resp.data.map(a => ({
+				value: a,
+				label: a.eve_nome
+			})))
 		})
 	}
 
 	function getClasses(evento) {
 		axios.post(`${url}/getClasses`, {
 			evento,
-			pdv: pdvSelect?.pdv_id ?? null
+			pdv: pdv?.value.pdv_id ?? null
 		})
 		.then(resp => {
-			setClasses(resp.data)
+			setClassesList(resp.data.map(a => ({
+				value: a,
+				label: a.cla_nome
+			})))
 		})
 	}
 
+    function DropdownList({ data, value, disabled, placeholder, onChangeHandler }) {
+
+        const styles = {
+            container: style => ({ ...style, width: '100%' }),
+            control: style => ({
+                ...style,
+                backgroundColor: 'white',
+                flexDirection: 'row'
+            }),
+            indicatorsContainer: style => ({ ...style, flexDirection: 'row' })
+        }
+
+        return <div className='list'>
+            <Select
+                isSearchable={true}
+				isClearable={true}
+				isDisabled={disabled}
+				placeholder={placeholder}
+                onChange={e => onChangeHandler(e ?? null)}
+				value={value}
+                options={data}
+                styles={styles}
+            />
+        </div>
+    }
+
+    useEffect(() => {
+		axios.get(`${url}/getPdvs`)
+		.then(resp => {
+			setPdvsList(resp.data.map(a => ({
+				value: a,
+				label: a.pdv_nome
+			})))
+		})
+	}, []);
+
 	return <>
-		<p>
-			Taxa: {JSON.stringify(resp)}
-		</p>
-
 		<form onSubmit={saveTaxa}>
-			<div>
-				<label>
-					<span>PDV: </span>
-					<input list='pdvs' onChange={a => {
-						var text = (a.target.value).trim();
-						var pdv = pdvs.find(a => a.pdv_nome === text)
+			<label>
+				<span>PDV: </span>
+				<DropdownList
+					data={pdvsList}
+					value={pdv}
+					placeholder="Selecionar PDV..."
+					disabled={false}
+					onChangeHandler={a => {
+						setPdv(a)
 
-						if(!!pdv && pdvSelect !== text) {
-							setPdv(pdv)
-							getEventos(pdv?.pdv_id)
+						if(a !== null) {
+							getEventos(a?.value.pdv_id)
 						}
 						else {
-							setPdv(null)
-							setEventos([])
+							setEventosList([])
 							setEvento(null)
-							setClasses([])
+							setClassesList([])
 						}
+					}}
+				/>
+			</label>
 
-						document.getElementById('eventoInput').value = ''
-						document.getElementById('classeInput').value = ''
-					}}/>
-					<datalist id='pdvs'>
-						{ pdvs.length > 0 && pdvs.map((pdv, index) => (
-							<option key={index} value={pdv?.pdv_nome}/>
-						)) }
-					</datalist>
-				</label>
+			<label>
+				<span>Evento: </span>
+				<DropdownList
+					data={eventosList}
+					value={evento}
+					placeholder={!eventosList.length ? 'Sem eventos alocados' : 'Selecionar Evento...'}
+					disabled={!eventosList.length}
+					onChangeHandler={a => {
+						setEvento(a)
 
-				<label>
-					<span>Evento: </span>
-					<input id='eventoInput' list='eventos'
-						disabled={!eventos.length}
-						onChange={a => {
-						var text = (a.target.value).trim();
-						var evento = eventos.find(a => a.eve_nome === text)
-						if(!!evento && eventoSelect !== text) {
-							setEvento(evento)
-							getClasses(evento?.eve_cod)
+						if(a !== null) {
+							getClasses(a?.value.eve_cod)
 						}
 						else {
-							setEvento(null)
-							setClasses([])
+							setClassesList([])
 						}
-
-						document.getElementById('classeInput').value = ''
-					}}/>
-					<datalist id='eventos'>
-						{ eventos.length > 0 && eventos.map((evento, index) => (
-							<option key={index} value={evento?.eve_nome}/>
-						)) }
-					</datalist>
-				</label>
-			</div>
-
+					}}
+				/>
+			</label>
 		
 			<label>
 				<span>Classe: </span>
-				<input id='classeInput' list='classes'
-					disabled={!classes.length}
-					onChange={a => {
-						var text = (a.target.value).trim();
-						var classe = classes.find(a => a.cla_nome === text)
-						let tax_classe = 0
+				<DropdownList
+					data={classesList}
+					value={classe}
+					placeholder={!classesList.length ? 'Sem classes alocadas' : 'Selecionar Classe...'}
+					disabled={!classesList.length}
+					onChangeHandler={a => {
+						setClasse(a)
 
-						if(!!classe) {
-							tax_classe = classe?.cla_cod
+						setTaxa(e => ({
+							...e,
+							tax_classe: a?.value.cla_cod ?? null
+						}))
+
+						setParc(e => ({
+							...e,
+							par_classe: a?.value.cla_cod ?? null
+						}))
+
+						if(a !== null) {
 							setMaxParc(() => {
-								var max = Math.trunc(classe.cla_valor)
-								if(max < 2)
-									return 1
-								return max
+								var max = Math.trunc(a?.value.cla_valor)
+	
+								return max < 2 ? 1 : max
 							})
 						}
 						else {
 							setMaxParc(1)
 						}
-						
-						if(taxa.tax_classe !== tax_classe && parc.par_classe !== tax_classe) {
-							setTaxa(e => {
-								e.tax_classe = tax_classe
-								return e
-							})
-
-							setParc(e => {
-								e.par_classe = tax_classe
-								return e
-							})
-						}
 					}}
 				/>
-				<datalist id='classes'>
-					{ classes.length > 0 && classes.map((classe, index) => (
-						<option key={index} value={classe?.cla_nome}/>
-					)) }
-				</datalist>
 			</label>
 
 			<div className='input'>
@@ -200,6 +215,7 @@ export default function CadastroTaxa() {
 					<span>Dinheiro: </span>
 					<input
 						type="text"
+						className='money-percent'
 						value={taxa.tax_dinheiro_perc ? `${dinheiro} %` : `R$ ${dinheiro}`}
 						onChange={a => {
 							const value_mask = numberMask(a.target.value, taxa.tax_dinheiro_perc);
@@ -228,6 +244,7 @@ export default function CadastroTaxa() {
 					<span>Crédito: </span>
 					<input
 						type="text"
+						className='money-percent'
 						value={taxa.tax_credito_perc ? `${credito} %` : `R$ ${credito}`}
 						onChange={a => {
 							const value_mask = numberMask(a.target.value, taxa.tax_credito_perc);
@@ -256,6 +273,7 @@ export default function CadastroTaxa() {
 					<span>Débito: </span>
 					<input
 						type="text"
+						className='money-percent'
 						value={taxa.tax_debito_perc ? `${debito} %` : `R$ ${debito}`}
 						onChange={a => {
 							const value_mask = numberMask(a.target.value, taxa.tax_debito_perc);
@@ -284,6 +302,7 @@ export default function CadastroTaxa() {
 					<span>Pix: </span>
 					<input
 						type="text"
+						className='money-percent'
 						value={taxa.tax_pix_perc ? `${pix} %` : `R$ ${pix}`}
 						onChange={a => {
 							const value_mask = numberMask(a.target.value, taxa.tax_pix_perc);
@@ -309,11 +328,13 @@ export default function CadastroTaxa() {
 
 			<div>
 				<p>Parcelas de Crédito</p>
+				<hr/>
 
 				<label>
 					<span>Máximo de parcelas: </span>
 					<input
 						type="number"
+						className='money-percent'
 						max={maxParc}
 						min="1"
                         defaultValue={1}
@@ -328,6 +349,7 @@ export default function CadastroTaxa() {
 						<span>Taxa por parcela: </span>
 						<input
 							type="text"
+							className='money-percent'
 							value={parc.par_acrescimo_perc ? `${parcelaCredito} %` : `R$ ${parcelaCredito}`}
 							onChange={a => {
 								const value_mask = numberMask(a.target.value, parc.par_acrescimo_perc);
@@ -356,5 +378,7 @@ export default function CadastroTaxa() {
 			</div>
 			<button type="submit" disabled={!taxa.tax_classe}>salvar taxa</button>
 		</form>
+
+        {!!resp && <Taxa data={resp}/>}
 	</>
 }

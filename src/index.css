@@ -9,6 +9,12 @@ body {
 
 #root {
   width: 100%;
+  flex-direction: row;
+  font-size: 16px !important;
+}
+
+hr {
+  width: 100%;
 }
 
 form {
@@ -29,39 +35,66 @@ div.input {
   flex-direction: row;
 }
 
-div:not(#root, .input) {
-  border: 1px solid black;
+div:not(
+  #root,
+  .input,
+  div.list,
+  div.list *
+) {
+  border: 1px solid #333;
+  border-radius: 4px;
   padding: 10px;
   margin-block: 10px;
+}
+
+div.list {
+  width: 100%;
 }
 
 label.percent {
   display: flex;
   width: min-content;
   align-items: baseline;
+  align-self: center;
+}
+
+label.percent > span {
+  font-size: large;
 }
 
 div.input label:not(.percent) {
   width: 100%;
 }
 
-form {
+div.form-result {
   width: -moz-max-content;
   width: max-content;
   border: 1px solid black;
+  padding: 10px;
+  margin: 10px;
+}
+
+label.percent:hover {
+  cursor: pointer;
+}
+
+form {
+  width: -moz-max-content;
+  width: max-content;
+  border: 1px solid #808080;
+  border-radius: 4px;
   padding: 10px;
   margin-block: 10px;
 }
 
 form label {
-  display: table;
+  display: flex;
+  align-items: center;
   padding-bottom: 3pt;
-  border-bottom: 1px solid black;
 }
 
-form label:not(.percent) span {
-  display: table-cell;
-  width: 80px;
+form label:not(.percent) > span {
+  width: 110px;
 }
 
 form label span.auto {
@@ -71,6 +104,32 @@ form label span.auto {
 form label input:not(input[type="checkbox"]) {
   display: table-cell;
   width: -webkit-fill-available;
+}
+
+form input.money-percent {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 16px;
+  color: #333;
+}
+
+form button[type="submit"] {
+  background-color: #eee;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #333;
+}
+
+form button[type="submit"]:disabled {
+  background-color: white;
+  border-color: #ccc;
+  color: #ccc;
+}
+
+form button[type="submit"]:hover:not(:disabled) {
+  background-color: #ccc;
+  cursor: pointer;
 }
 
 p {
