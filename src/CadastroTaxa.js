@@ -151,6 +151,7 @@ export default function CadastroTaxa() {
 							setEventosList([])
 							setEvento(null)
 							setClassesList([])
+							setClasse(null)
 						}
 					}}
 				/>
@@ -171,6 +172,7 @@ export default function CadastroTaxa() {
 						}
 						else {
 							setClassesList([])
+							setClasse(null)
 						}
 					}}
 				/>
@@ -376,7 +378,7 @@ export default function CadastroTaxa() {
 					</label>
 				</div>
 			</div>
-			<button type="submit" disabled={!taxa.tax_classe}>salvar taxa</button>
+			<button type="submit" disabled={!classe}>salvar taxa</button>
 		</form>
 
         {!!resp && <Taxa data={resp}/>}
