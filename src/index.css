@@ -9,38 +9,58 @@ body {
 
 #root {
   width: 100%;
-  flex-direction: row;
   font-size: 16px !important;
+}
+
+#body {
+  flex-direction: row;
+}
+
+nav {
+  display: inline-block;
+  margin-block-end: 10px;
+  padding-block: 5px;
+  border-block: 2px solid #333;
+}
+
+nav > * {
+  margin-inline: 10px;
+}
+
+a {
+  color: blue;
+  text-decoration: none;
+}
+
+a:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+a:active {
+  color: #808080;
+}
+
+a.active {
+  text-decoration: underline;
 }
 
 hr {
   width: 100%;
 }
 
-form {
-  display: inline-flex;
-  flex-direction: column;
-}
+
 
 div {
   display: inline-flex;
   flex-direction: column;
 }
 
-div#body {
-  width: 50%;
-}
-
 div.input {
   flex-direction: row;
 }
 
-div:not(
-  #root,
-  .input,
-  div.list,
-  div.list *
-) {
+div.box {
   border: 1px solid #333;
   border-radius: 4px;
   padding: 10px;
@@ -69,8 +89,8 @@ div.input label:not(.percent) {
 div.form-result {
   width: -moz-max-content;
   width: max-content;
-  border: 1px solid black;
-  padding: 10px;
+  height: -moz-min-content;
+  height: min-content;
   margin: 10px;
 }
 
@@ -79,12 +99,13 @@ label.percent:hover {
 }
 
 form {
+  display: inline-flex;
+  flex-direction: column;
   width: -moz-max-content;
   width: max-content;
   border: 1px solid #808080;
   border-radius: 4px;
   padding: 10px;
-  margin-block: 10px;
 }
 
 form label {

@@ -328,7 +328,7 @@ export default function CadastroTaxa() {
 				</label>
 			</div>
 
-			<div>
+			<div className='box'>
 				<p>Parcelas de Crédito</p>
 				<hr/>
 

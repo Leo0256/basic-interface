@@ -23,7 +23,7 @@ export default function Taxa({ data }) {
         return moneyFormat(parseFloat(value));
     }
 
-    return <div className='form-result'>
+    return <div className='form-result box'>
         <p><b>Taxa Registrada</b></p>
         <hr/>
         <p><b>PDV:</b> {data?.pdv}</p>
