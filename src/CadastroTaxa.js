@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
-import axios from 'axios';
 import Taxa from './Taxa';
+import { DropdownList, NumberPercentMask } from './components';
+import Connection from './model';
+const axios = Connection()
 
 export default function CadastroTaxa() {
     const [ taxa, setTaxa ] = useState({
@@ -17,15 +18,12 @@ export default function CadastroTaxa() {
 	});
 	const [ parc, setParc ] = useState({
 		par_mpgto: 2,
-		par_max: 0,
+		par_max: 1,
 		par_acrescimo: 0,
 		par_acrescimo_perc: 0,
 		par_classe: null
 	})
 	const [ resp, setResp ] = useState();
-
-	const url = 'https://api-qingresso-server.onrender.com/temp'
-	//const url = 'http://localhost:3000/temp'
 
     const [ pdvsList, setPdvsList ] = useState([]);
 	const [ eventosList, setEventosList ] = useState([]);
@@ -44,7 +42,7 @@ export default function CadastroTaxa() {
     function saveTaxa(e) {
 		e.preventDefault();
 
-		axios.post(`${url}/saveTaxa`, { taxa, parc })
+		axios.post(`saveTaxa`, { taxa, parc })
 		.then(resp => {
 			setResp({
                 ...resp.data,
@@ -55,26 +53,8 @@ export default function CadastroTaxa() {
 		})
 	}
 
-	function numberMask(value, percent) {
-		const percentMask = (text) => {
-			if(percent) {
-				if(text.includes('%'))
-					return text.replace('%', '').trim()
-				return text.trim().slice(0, -1)
-			}
-
-			return text.replace('R$', '').trim()
-		}
-
-		const number_aux = percentMask(value).replace('.', '').replace(',', '').replace(/\D/g, '');
-
-		return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(
-			parseFloat(number_aux) / 100
-		);
-	}
-
 	function getEventos(pdv) {
-		axios.post(`${url}/getEventos`, { pdv })
+		axios.post(`getEventos`, { pdv })
 		.then(resp => {
 			setEventosList(resp.data.map(a => ({
 				value: a,
@@ -84,7 +64,7 @@ export default function CadastroTaxa() {
 	}
 
 	function getClasses(evento) {
-		axios.post(`${url}/getClasses`, {
+		axios.post(`getClasses`, {
 			evento,
 			pdv: pdv?.value.pdv_id ?? null
 		})
@@ -96,34 +76,8 @@ export default function CadastroTaxa() {
 		})
 	}
 
-    function DropdownList({ data, value, disabled, placeholder, onChangeHandler }) {
-
-        const styles = {
-            container: style => ({ ...style, width: '100%' }),
-            control: style => ({
-                ...style,
-                backgroundColor: 'white',
-                flexDirection: 'row'
-            }),
-            indicatorsContainer: style => ({ ...style, flexDirection: 'row' })
-        }
-
-        return <div className='list'>
-            <Select
-                isSearchable={true}
-				isClearable={true}
-				isDisabled={disabled}
-				placeholder={placeholder}
-                onChange={e => onChangeHandler(e ?? null)}
-				value={value}
-                options={data}
-                styles={styles}
-            />
-        </div>
-    }
-
     useEffect(() => {
-		axios.get(`${url}/getPdvs`)
+		axios.get(`getPdvs`)
 		.then(resp => {
 			setPdvsList(resp.data.map(a => ({
 				value: a,
@@ -134,6 +88,7 @@ export default function CadastroTaxa() {
 
 	return <>
 		<form onSubmit={saveTaxa}>
+			<h2>Sobretaxa de Ingresso</h2>
 			<label>
 				<span>PDV: </span>
 				<DropdownList
@@ -220,7 +175,7 @@ export default function CadastroTaxa() {
 						className='money-percent'
 						value={taxa.tax_dinheiro_perc ? `${dinheiro} %` : `R$ ${dinheiro}`}
 						onChange={a => {
-							const value_mask = numberMask(a.target.value, taxa.tax_dinheiro_perc);
+							const value_mask = NumberPercentMask(a.target.value, taxa.tax_dinheiro_perc);
 							const value = parseFloat(value_mask.replace(/\./g,'').replace(/,/g,'.'));
 
 							setDinheiro(value_mask);
@@ -249,7 +204,7 @@ export default function CadastroTaxa() {
 						className='money-percent'
 						value={taxa.tax_credito_perc ? `${credito} %` : `R$ ${credito}`}
 						onChange={a => {
-							const value_mask = numberMask(a.target.value, taxa.tax_credito_perc);
+							const value_mask = NumberPercentMask(a.target.value, taxa.tax_credito_perc);
 							const value = parseFloat(value_mask.replace(/\./g,'').replace(/,/g,'.'));
 
 							setCredito(value_mask);
@@ -278,7 +233,7 @@ export default function CadastroTaxa() {
 						className='money-percent'
 						value={taxa.tax_debito_perc ? `${debito} %` : `R$ ${debito}`}
 						onChange={a => {
-							const value_mask = numberMask(a.target.value, taxa.tax_debito_perc);
+							const value_mask = NumberPercentMask(a.target.value, taxa.tax_debito_perc);
 							const value = parseFloat(value_mask.replace(/\./g,'').replace(/,/g,'.'));
 
 							setDebito(value_mask);
@@ -307,7 +262,7 @@ export default function CadastroTaxa() {
 						className='money-percent'
 						value={taxa.tax_pix_perc ? `${pix} %` : `R$ ${pix}`}
 						onChange={a => {
-							const value_mask = numberMask(a.target.value, taxa.tax_pix_perc);
+							const value_mask = NumberPercentMask(a.target.value, taxa.tax_pix_perc);
 							const value = parseFloat(value_mask.replace(/\./g,'').replace(/,/g,'.'));
 
 							setPix(value_mask);
@@ -354,7 +309,7 @@ export default function CadastroTaxa() {
 							className='money-percent'
 							value={parc.par_acrescimo_perc ? `${parcelaCredito} %` : `R$ ${parcelaCredito}`}
 							onChange={a => {
-								const value_mask = numberMask(a.target.value, parc.par_acrescimo_perc);
+								const value_mask = NumberPercentMask(a.target.value, parc.par_acrescimo_perc);
 								const value = parseFloat(value_mask.replace(/\./g,'').replace(/,/g,'.'));
 
 								setParcelaCredito(value_mask);
