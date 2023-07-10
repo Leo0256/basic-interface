@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Taxa from './Taxa';
-import { DropdownList, NumberPercentMask } from './components';
-import Connection from './model';
+import { DropdownList, NumberPercentMask } from '../components';
+import Connection from '../model';
 const axios = Connection()
 
 export default function CadastroTaxa() {

@@ -1,5 +1,5 @@
 body {
-  margin: 20px;
+  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -13,21 +13,32 @@ body {
 
   flex-direction: row;/**/
   flex-wrap: wrap;
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: auto;
 }
 
 #body {
   flex-direction: row;
+  margin: 10px;
 }
 
 nav {
-  display: inline-block;
-  margin-block-end: 10px;
-  padding-block: 5px;
-  border-block: 2px solid #333;
+  background-color: #eee;
+  border-right: 1px solid grey;
 }
 
 nav > * {
   margin-inline: 10px;
+  padding: 0;
+}
+
+nav ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10pt;
 }
 
 a {
@@ -40,8 +51,16 @@ a:hover {
   text-decoration: underline;
 }
 
+li {
+  display: block;
+}
+
 a:active {
   color: #808080;
+}
+
+a:not(.active) {
+  color: #333;
 }
 
 a.active {
@@ -106,6 +125,8 @@ form {
   flex-direction: column;
   width: -moz-max-content;
   width: max-content;
+  height: -moz-min-content;
+  height: min-content;
   border: 1px solid #808080;
   border-radius: 4px;
   padding: 10px;

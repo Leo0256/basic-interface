@@ -4,14 +4,16 @@ import {
 	Routes,
 	Route
 } from 'react-router-dom';
-import CadastroTaxa from './CadastroTaxa';
+import { Sidebar } from './components';
+import * as Views from './views';
 
 export default function App() {
 	return <>
 		<BrowserRouter>
 			<Routes>
-				<Route path='/'>
-					<Route index element={<CadastroTaxa/>}/>
+				<Route path='/' element={<Sidebar/>}>
+					<Route index element={<Views.CadastroTaxa/>}/>
+					<Route path='/alocacao' element={<Views.AlocacaoEventoPdv/>}/>
 				</Route>
 			</Routes>
 		</BrowserRouter>
