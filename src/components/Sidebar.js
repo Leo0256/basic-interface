@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react';
+import React/* , { useMemo } */ from 'react';
 import {
-    NavLink,
+    //NavLink,
     Outlet
 } from 'react-router-dom';
 
 export default function Sidebar() {
-    const links = useMemo(() => [
+    /* const links = useMemo(() => [
         {
             to: '/',
             title: 'Cadastro de Sobretaxa',
@@ -16,10 +16,10 @@ export default function Sidebar() {
             title: 'Alocação de Eventos',
             text: 'Alocar Evento'
         },
-    ], []);
+    ], []); */
 
     return <>
-        <nav>
+        {/* <nav>
             <ul>
                 {links.map((link, index) => (
                     <li key={index}>
@@ -32,7 +32,7 @@ export default function Sidebar() {
                     </li>
                 ))}
             </ul>
-        </nav>
+        </nav> */}
 
         <div id='body'>
             <Outlet/>
