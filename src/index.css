@@ -246,10 +246,12 @@ tr.classe td {
 
 th.large {
   width: 20%;
+  min-width: 85px;
 }
 
 th.medium {
   width: 10%;
+  min-width: 85px;
 }
 
 th.small {
