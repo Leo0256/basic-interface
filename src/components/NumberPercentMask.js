@@ -14,7 +14,7 @@ export default function NumberPercentMask(value, percent) {
         return text.replace('R$', '').trim()
     }
 
-    const number_aux = percentMask(value.toString()).replace('.', '').replace(',', '').replace(/\D/g, '');
+    const number_aux = percentMask(value.toString()).replace(/\./, '').replace(/,/, '').replace(/\D/g, '');
 
     return new Intl.NumberFormat(
         'pt-BR',
