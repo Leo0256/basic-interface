@@ -13,7 +13,7 @@ export default function App() {
 			<Routes>
 				<Route path='/' element={<Sidebar/>}>
 					<Route index element={<Views.CadastroTaxa/>}/>
-					<Route path='/alocacao' element={<Views.AlocacaoEventoPdv/>}/>
+					{/* <Route path='/alocacao' element={<Views.AlocacaoEventoPdv/>}/> */}
 				</Route>
 			</Routes>
 		</BrowserRouter>
