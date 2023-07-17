@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { DropdownList, NumberPercentMask } from '../components';
+import ArrowDown from '../components/icons/arrow_down-short.svg';
+import ArrowUp from '../components/icons/arrow_up-short.svg';
 import Connection from '../model';
 const axios = Connection()
 
@@ -184,11 +186,12 @@ export default function CadastroTaxa() {
 	 *			par_classe: number
 	 *		}
 	 * 	},
-	 * 	valor_ing: number
+	 * 	valor_ing: number,
+	 * 	show: boolean
 	 * }}  
 	 * @returns 
 	 */
-	function TaxaFragment({ pdv, valor_ing }) {
+	function TaxaFragment({ pdv, valor_ing, show }) {
 		const [ dinheiro, setDinheiro ] = useState(NumberPercentMask(pdv.taxa.tax_dinheiro))
 		const [ dinheiro_perc, setDinheiro_perc ] = useState(pdv.taxa.tax_dinheiro_perc)
 
@@ -208,7 +211,7 @@ export default function CadastroTaxa() {
 
 		const limite_parcelas = Math.floor(valor_ing);
 
-		return <tr>
+		return <tr className={show ? '' : 'collapsed'}>
 			{/* PDV */}
 			<td>{pdv.pdv_nome}</td>
 
@@ -300,12 +303,24 @@ export default function CadastroTaxa() {
 	 * @returns 
 	 */
 	function ClasseFragment({ classe }) {
-		let rowSpan = Object.keys(classe.value.pdvs).length +1;
+		const [ collapsed, setCollapsed ] = useState(true);
+		
+		let rowSpan = collapsed ? Object.keys(classe.value.pdvs).length +1 : 1;
 
 		return <>
 			<tr className='classe'>
 				<td rowSpan={rowSpan}>
-					<p>{classe.label}</p>
+					<div>
+						<button
+							type='button'
+							className='circle'
+							onClick={() => setCollapsed(!collapsed)}
+							title='Ocultar Classe'
+						>
+							<img src={collapsed ? ArrowDown : ArrowUp} alt=''/>
+						</button>
+						<p>{classe.label}</p>
+					</div>
 				</td>
 				<td rowSpan={rowSpan}>
 					<p>R$ {NumberPercentMask(classe.value.cla_valor, 0)}</p>
@@ -316,6 +331,7 @@ export default function CadastroTaxa() {
 					key={index}
 					pdv={pdv}
 					valor_ing={parseFloat(classe.value.cla_valor)}
+					show={collapsed}
 				/>
 			))}
 			<tr className='table-separator'/>
