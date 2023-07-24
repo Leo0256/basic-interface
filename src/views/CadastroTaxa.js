@@ -54,7 +54,7 @@ export default function CadastroTaxa() {
 		e.preventDefault();
 
 		setLoading(true);
-		axios.post(`saveTaxa`, {
+		axios.post(`save/taxa`, {
 			evento: evento.value,
 			classes: classesList.map(a => a.value)
 		})
@@ -71,7 +71,7 @@ export default function CadastroTaxa() {
 	 */
 	function getClasses(evento) {
 		setClasseLoading(true);
-		axios.post('getClasses', { evento })
+		axios.post('classes', { evento })
 		.then(resp => {
 			setClassesList(resp.data.map(a => ({
 				value: a,
@@ -98,7 +98,7 @@ export default function CadastroTaxa() {
     useEffect(() => {
 		let execute = true;
 
-		axios.get('getEventos')
+		axios.get('eventos')
 		.then(resp => {
 			if(!eventosList.length && execute) {
 				setEventosList(resp.data.map(a => ({
